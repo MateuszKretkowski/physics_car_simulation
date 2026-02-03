@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: sampleSpring
   m_EditorClassIdentifier: Assembly-CSharp::Spring
   mass: 5
-  stiffness: 0.08
-  epsilon: 5
+  stiffness: 1
+  epsilon: 50000
   relaxedDistance: 0
