@@ -7,4 +7,5 @@ public class Spring : ScriptableObject
     public float stiffness;
     public float epsilon;
     public float relaxedDistance;
+    public float carRelaxedDistance;
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEngine.GraphicsBuffer;
 
 public class damperScript : MonoBehaviour
@@ -37,16 +38,22 @@ public class damperScript : MonoBehaviour
     void Update()
     {
         tireDirection = (transform.position - targetPoint.transform.position).normalized;
-        carDirection = Vector3.up;
-        tireDistance = CalculateDistance(transform.position + tireDirection * spring.relaxedDistance, targetPoint);
-        carDistance = CalculateDistance(transform.position + carDirection * spring.relaxedDistance, car);
+        carDirection = (transform.position - new Vector3(transform.position.x, car.transform.position.y, transform.position.z)).normalized;
+        carDirection.x = 0;
+        carDirection.z = 0;
+        tireDirection.x = 0;
+        tireDirection.z = 0;
+        tireDistance = CalculateDistance(transform.position + tireDirection * spring.relaxedDistance, targetPoint.transform.position);
+        carDistance = CalculateDistance(transform.position + carDirection * spring.carRelaxedDistance, new Vector3(transform.position.x, car.transform.position.y, transform.position.z));
+        Debug.Log("CarDistance: " + carDistance);
+        Debug.Log("WIthour CarDistance: " + CalculateDistance(transform.position, new Vector3(transform.position.x, car.transform.position.y, transform.position.z)));
         CalculateForces();
         CalculateSpringBodyContraction();
     }
 
-    float CalculateDistance(Vector3 self, GameObject target)
+    float CalculateDistance(Vector3 self, Vector3 target)
     {
-        return Vector3.Distance(self, target.transform.position);
+        return Vector3.Distance(self, target);
     }
 
     void CalculateForces()
@@ -55,7 +62,7 @@ public class damperScript : MonoBehaviour
         Vector3 carForce = CalculateCarForce();
 
         target_rb.AddForce(tireForce, ForceMode.Impulse);
-        car_rb.AddForceAtPosition(carForce, transform.position);
+        car_rb.AddForceAtPosition(carForce, new Vector3(transform.position.x, car.transform.position.y, transform.position.z));
     }
 
     Vector3 CalculateTireForce()
@@ -66,7 +73,6 @@ public class damperScript : MonoBehaviour
             return Vector3.zero;
         }
         float force = spring.stiffness * Mathf.Pow(tireDistance, 2) / 2;
-        Debug.Log("force: " + force);
         Debug.DrawRay(targetPoint.transform.position, tireDirection, Color.red);
         return tireDirection * (tireDistance) * force / 2;
     }
@@ -83,11 +89,8 @@ public class damperScript : MonoBehaviour
             return Vector3.zero;
         }
         float force = spring.stiffness * Mathf.Pow(carDistance, 2) / 2;
-        float distanceToCar = CalculateDistance(transform.position, car);
-        carDirection.x *= 0f;
-        carDirection.z *= 0f;
         // force = spring.stiffness * Mathf.Pow((distance + distanceToCar), 2);
-        Debug.DrawRay(transform.position, -carDirection, Color.pink);
+        Debug.DrawRay(new Vector3(transform.position.x, car.transform.position.y, transform.position.z), carDirection, Color.pink);
         return -carDirection * (carDistance) * force / 2;
     }
 
