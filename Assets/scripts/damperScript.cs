@@ -38,7 +38,7 @@ public class damperScript : MonoBehaviour
     void Update()
     {
         tireDirection = (transform.position - targetPoint.transform.position).normalized;
-        carDirection = (transform.position - new Vector3(transform.position.x, car.transform.position.y, transform.position.z)).normalized;
+        carDirection = (transform.position - new Vector3(car.transform.position.x, car.transform.position.y, car.transform.position.z)).normalized;
         carDirection.x = 0;
         carDirection.z = 0;
         tireDirection.x = 0;
@@ -62,6 +62,7 @@ public class damperScript : MonoBehaviour
         Vector3 carForce = CalculateCarForce();
 
         target_rb.AddForce(tireForce, ForceMode.Impulse);
+        car_rb.AddForce(-2 * Physics.gravity, ForceMode.Acceleration);
         car_rb.AddForceAtPosition(carForce, new Vector3(transform.position.x, car.transform.position.y, transform.position.z));
     }
 
@@ -91,7 +92,7 @@ public class damperScript : MonoBehaviour
         float force = spring.stiffness * Mathf.Pow(carDistance, 2) / 2;
         // force = spring.stiffness * Mathf.Pow((distance + distanceToCar), 2);
         Debug.DrawRay(new Vector3(transform.position.x, car.transform.position.y, transform.position.z), carDirection, Color.pink);
-        return -carDirection * (carDistance) * force / 2;
+        return carDirection * (carDistance) * force / 2;
     }
 
     void CalculateSpringBodyContraction()
@@ -99,5 +100,9 @@ public class damperScript : MonoBehaviour
         Vector3 newScale = new Vector3(springBody.transform.localScale.x, springBody.transform.localScale.y, tireDistance);
         springBody.transform.localScale = newScale;
         springBody.transform.LookAt(targetPoint.transform.position);
+
+        float yAxis = (car.transform.position.y + targetPoint.transform.position.y) / 2;
+        Vector3 newPos = new Vector3(springBody.transform.position.x, yAxis, springBody.transform.position.z);
+        springBody.transform.position = newPos;
     }
 }
